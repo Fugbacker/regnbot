@@ -10,11 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.4",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "md5": "^2.3.0",
+    "mongodb": "^6.3.0",
     "node-telegram-bot-api": "^0.54.0",
-    "puppeteer": "^10.2.0",
+    "nodemon": "^3.0.2",
+    "puppeteer": "^21.6.1",
     "telegraf": "^4.4.1"
-  }
+  },
+  "devDependencies": {}
 }

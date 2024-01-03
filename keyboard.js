@@ -7,19 +7,23 @@ module.exports = {
     [
       [{
         text: `${templates.specificationsRepot} ${templates.specificationsRepotPrice}р`,
-        callback_data: `fl, 250`
+        callback_data: `oh, 350`
       }],
       [{
         text: `${templates.rightsReport} ${templates.rightsReportPrice}р`,
-        callback_data: `rh, 350`
+        callback_data: `op, 450`
       }],
       [{
         text: `${templates.cadastralReport} ${templates.cadastralReportPrice}р`,
-        callback_data: `cs, 250`
+        callback_data: `ks, 320`
       }],
       [{
         text: `${templates.fullCheckReport} ${templates.fullCheckReportPrice}р`,
-        callback_data: `fc, 950`
+        callback_data: `ss, 3500`
+      }],
+      [{
+        text: `🔍 ${templates.backSearch}`,
+        callback_data: `startSearchAgain`
       }]
     ]}
 }}
