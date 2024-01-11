@@ -52,7 +52,6 @@ const {getEgrpMessage} = require('./helper')
 
 bot.on('message', (msg) => {
   (async () => {
-    console.log('ЧТО ТУТ', msg)
     const chatId = msg.chat.id;
     const htmlText = startText()
     // если нажали на кнопку старт или открыли меню, появляется клавиатура с кнопками
@@ -518,7 +517,6 @@ bot.on('message', (msg) => {
       let fulPrice = price?.trim()
 
       const email = msg?.text
-      console.log('что тут', [msg.from.id][0])
       const cadastrNumber = userStates?.cadastrNumber
 
 
@@ -591,7 +589,7 @@ bot.on('message', (msg) => {
           const fullOrder = {
             date,
             email,
-            orderNumber,
+            orderNumber: order,
             cadastrNumber,
             kindOfRaports: renameRaports(document),
             summa: fulPrice,
@@ -717,7 +715,7 @@ bot.on('callback_query', query => {
           const orderCreate = ms.toString().split('').slice(7).join('')
           const order = `${daynow}${orderCreate}`
 
-
+          console.log('ORDERNUMBER', order)
           const year = data.getFullYear()
           const month = `0${data.getMonth()+1}`
           const monthReal = month.length > 2 ? month.slice(1) : month
@@ -773,7 +771,7 @@ bot.on('callback_query', query => {
               const fullOrder = {
                 date,
                 email,
-                orderNumber,
+                orderNumber: order,
                 cadastrNumber,
                 kindOfRaports: renameRaports(document),
                 summa: fulPrice,
