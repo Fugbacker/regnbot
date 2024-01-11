@@ -524,8 +524,8 @@ bot.on('message', (msg) => {
 
       const data = new Date()
       const daynow = data.getDate()
-      const orderNumber = Date.now()
-      const orderCreate = orderNumber.toString().split('').slice(7).join('')
+      const ms = Date.now()
+      const orderCreate = ms.toString().split('').slice(7).join('')
       const order = `${daynow}${orderCreate}`
 
 
@@ -711,12 +711,10 @@ bot.on('callback_query', query => {
           const email = response?.clientMail
           const cadastrNumber = query?.message?.text.split('\n')[0].split(' ')[2]
 
-
-          const merchantLogin = 'goskadastr'
           const data = new Date()
           const daynow = data.getDate()
-          const orderNumber = Date.now()
-          const orderCreate = orderNumber.toString().split('').slice(7).join('')
+          const ms = Date.now()
+          const orderCreate = ms.toString().split('').slice(7).join('')
           const order = `${daynow}${orderCreate}`
 
 
