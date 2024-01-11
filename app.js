@@ -10,7 +10,7 @@ const { default: axios } = require('axios')
 
 const keyboard = require('./keyboard')
 const templates = require('./templates')
-const {startText,answerInformationEgrn, answerInformationEgrn1, dadataTokenChanger} = require('./helper')
+const {startText, answerInformationEgrn, answerInformationEgrn1, dadataTokenChanger, orderGeneration} = require('./helper')
 
 const { MongoClient } = require('mongodb')
 const url = process.env.MONGO_URL
@@ -202,8 +202,6 @@ bot.on('message', (msg) => {
 
       const dadataResponse = getAskDadata?.data?.suggestions[0]?.value
       const dadataResponseFull = getAskDadata?.data?.suggestions[0]?.data
-      console.log('DADATA', getAskDadata?.data)
-
 
       if (getAskDadata?.data?.suggestions?.length === 0) {
 
@@ -604,7 +602,16 @@ bot.on('callback_query', query => {
           const order = `${daynow}${orderCreate}`
 
 
-          const signatureValue = md5(`${merchantLogin}:${fulPrice}:${order}:jkhfg8d1983`)
+          const year = data.getFullYear()
+          const month = `0${data.getMonth()+1}`
+          const monthReal = month.length > 2 ? month.slice(1) : month
+          const day = data.getDate()
+          const hour = data.getHours()
+          const minutes = data.getMinutes()
+          const date = `${day}.${monthReal}.${year} ${hour}:${minutes}`
+
+
+          // const signatureValue = md5(`${merchantLogin}:${fulPrice}:${order}:jkhfg8d1983`)
 
           function renameRaports(objectData) {
             if (objectData ==='oh') {
@@ -617,38 +624,73 @@ bot.on('callback_query', query => {
               return ['Сведения о собственниках']
             }
           }
+          // const url = await orderGeneration(order, renameRaports(document), email, cadastrNumber, fulPrice, data)
 
-          const fullOrder = {
-            email,
-            orderNumber : order,
-            cadastrNumber,
-            kindOfRaports: renameRaports(document),
-            summa: fulPrice
-          }
+          axios(({
+            method:'POST',
+            url:'https://api.yookassa.ru/v3/payments',
+            headers: {
+              'Content-type': 'application/json',
+              'Idempotence-key': Date.now()
+            },
+            auth: {
+              username: '299846', //'501627',
+              // username: '501627', //'test',
+              password: 'live_Z4ZXNaLboAJcTwfH8-zNi6L4Zkgdteh7uJE57fxZYm0' //'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
+              // password: 'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
+            },
+            data: {
+              amount: {
+                value: fulPrice,
+                currency: 'RUB'
+              },
+              capture: true,
+              confirmation: {
+                type: 'redirect',
+                return_url:`https://goskadastr.su/result/${order}`
+              },
+              description: order
+            }
+          }))
+          .then(({ data }) => {
+            if (data) {
+              const fullOrder = {
+                date,
+                email,
+                orderNumber,
+                cadastrNumber,
+                kindOfRaports: renameRaports(document),
+                summa: fulPrice,
+                sale: false,
+                tgBot:true,
+                paymentId: data.id
+              }
 
-
-         axios({
-            method: 'POST',
-            url: 'https://goskadastr.su/api/addOrder',
-            data: fullOrder
-          }).then(({ data }) => console.log('DATA', data))
-
-          bot.sendMessage(query.message.chat.id, `${templates.isReadyGoToPay} <b>${cadastrNumber}</b>`, {
-            parse_mode: 'HTML',
-            reply_markup: {
-              inline_keyboard:
-                [
-                  [{
-                    text: `💳 ${templates.goToPay}`,
-                    url: `https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=${merchantLogin}&OutSum=${fulPrice}&InvoiceID=${order}&Description=${order}&SignatureValue=${signatureValue}`
-                  }],
-                  [{
-                    text: `🔍 ${templates.backSearch}`,
-                    callback_data: `startSearchAgain`
-                  }]
-                ]
+              axios({
+                method: 'POST',
+                url: 'https://goskadastr.su/api/addOrder',
+                data: fullOrder
+              })
+              const yookassPaymentUrl = data?.confirmation?.confirmation_url
+              bot.sendMessage(query.message.chat.id, `${templates.isReadyGoToPay} <b>${cadastrNumber}</b>`, {
+                parse_mode: 'HTML',
+                reply_markup: {
+                  inline_keyboard:
+                    [
+                      [{
+                        text: `💳 ${templates.goToPay}`,
+                        url: `${yookassPaymentUrl}`
+                      }],
+                      [{
+                        text: `🔍 ${templates.backSearch}`,
+                        callback_data: `startSearchAgain`
+                      }]
+                    ]
+                }
+              })
             }
           })
+          return
         } else {
           userStates = { ...userStates, [query.from.id]: { ...userStates[query.from.id], currentStep: USER_STATES.CHOOSE_DOCUMENT, info: query.data } }
           bot.sendMessage(query.message.chat.id, templates.mailText)

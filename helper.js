@@ -2,6 +2,7 @@ require('dotenv').config()
 const { default: axios } = require('axios')
 const apiToken = process.env.API_KEY
 module.exports = {
+
     startText: function startText() {
         return `Здравствуйте. Для поиска объекта, нажмите <b>найти объект</b>`
       },
@@ -96,15 +97,14 @@ module.exports = {
               Authorization: `Bearer ${dadataToken}`,
             },
           });
-
-
-          if (response.data.response.status === 403) {
-            // Токен исчерпал лимит запросов
-            const tokenIndex = tokenList.indexOf(token)
-            dadataToken = tokenList[tokenIndex+1];
-          }
+          // if (response.data.response.status === 403) {
+          //   // Токен исчерпал лимит запросов
+          //   const tokenIndex = tokenList.indexOf(token)
+          //   dadataToken = tokenList[tokenIndex+1];
+          // }
          } catch {
-          dadataToken = dadataToken
+          const tokenIndex = tokenList.indexOf(dadataToken)
+          dadataToken = tokenList[tokenIndex+1];
          }
 
 
