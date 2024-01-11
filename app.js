@@ -52,6 +52,7 @@ const {getEgrpMessage} = require('./helper')
 
 bot.on('message', (msg) => {
   (async () => {
+    console.log('ЧТО ТУТ', msg)
     const chatId = msg.chat.id;
     const htmlText = startText()
     // если нажали на кнопку старт или открыли меню, появляется клавиатура с кнопками
@@ -510,6 +511,125 @@ bot.on('message', (msg) => {
       }
     }
 
+    if (currentUserState?.currentStep === USER_STATES.CHOOSE_DOCUMENT) {
+      userStates = { ...userStates, [msg.from.id]: { ...userStates[msg.from.id], currentStep: USER_STATES.READY_TO_PAY, mail: msg.text }}
+      let document = userStates[msg.from.id].info.split(',')[0]
+      let price = userStates[msg.from.id].info.split(',')[1]
+      let fulPrice = price?.trim()
+
+      const email = msg?.text
+      console.log('что тут', [msg.from.id][0])
+      const cadastrNumber = userStates?.cadastrNumber
+
+
+      const data = new Date()
+      const daynow = data.getDate()
+      const orderNumber = Date.now()
+      const orderCreate = orderNumber.toString().split('').slice(7).join('')
+      const order = `${daynow}${orderCreate}`
+
+
+      const year = data.getFullYear()
+      const month = `0${data.getMonth()+1}`
+      const monthReal = month.length > 2 ? month.slice(1) : month
+      const day = data.getDate()
+      const hour = data.getHours()
+      const minutes = data.getMinutes()
+      const date = `${day}.${monthReal}.${year} ${hour}:${minutes}`
+
+
+      await client.connect()
+      const db = await client.db(process.env.MONGO_COLLECTION)
+      const collection = await db.collection('botClients')
+      await collection.insertOne({
+        clientTelegrammId: [msg.from.id][0],
+        clientMail: email,
+        userName: currentUserState?.userName
+      })
+
+
+      // const signatureValue = md5(`${merchantLogin}:${fulPrice}:${order}:jkhfg8d1983`)
+
+      function renameRaports(objectData) {
+        if (objectData ==='oh') {
+          return ['Отчет об основных характеристиках']
+        } else if (objectData ==='op') {
+          return ['Отчет о переходе прав']
+        } else if (objectData === 'ks') {
+          return ['Справка о кадастровой стоимости']
+        } else if (objectData === 'ss') {
+          return ['Сведения о собственниках']
+        }
+      }
+      // const url = await orderGeneration(order, renameRaports(document), email, cadastrNumber, fulPrice, data)
+
+      axios(({
+        method:'POST',
+        url:'https://api.yookassa.ru/v3/payments',
+        headers: {
+          'Content-type': 'application/json',
+          'Idempotence-key': Date.now()
+        },
+        auth: {
+          username: '299846', //'501627',
+          // username: '501627', //'test',
+          password: 'live_Z4ZXNaLboAJcTwfH8-zNi6L4Zkgdteh7uJE57fxZYm0' //'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
+          // password: 'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
+        },
+        data: {
+          amount: {
+            value: fulPrice,
+            currency: 'RUB'
+          },
+          capture: true,
+          confirmation: {
+            type: 'redirect',
+            return_url:`https://goskadastr.su/result/${order}`
+          },
+          description: order
+        }
+      }))
+      .then(({ data }) => {
+        if (data) {
+          const fullOrder = {
+            date,
+            email,
+            orderNumber,
+            cadastrNumber,
+            kindOfRaports: renameRaports(document),
+            summa: fulPrice,
+            sale: false,
+            tgBot:true,
+            paymentId: data.id
+          }
+
+          axios({
+            method: 'POST',
+            url: 'https://goskadastr.su/api/addOrder',
+            data: fullOrder
+          })
+          const yookassPaymentUrl = data?.confirmation?.confirmation_url
+          bot.sendMessage(chatId, `${templates.isReadyGoToPay} <b>${currentUserState.cadastrNumber}</b>`, {
+            parse_mode: 'HTML',
+            reply_markup: {
+              inline_keyboard:
+                [
+                  [{
+                    text: `💳 ${templates.goToPay}`,
+                    url: `${yookassPaymentUrl}`
+                  }],
+                  [{
+                    text: `🔍 ${templates.backSearch}`,
+                    callback_data: `startSearchAgain`
+                  }]
+                ]
+            }
+          })
+        }
+      })
+      return
+    }
+
     if (!currentUserState?.currentStep || !currentUserState) {
       bot.sendMessage(chatId, abraCadabraEnter, {
         parse_mode: 'HTML',
@@ -528,6 +648,7 @@ bot.on('message', (msg) => {
         }
       })
     }
+
   })();
 
 })
