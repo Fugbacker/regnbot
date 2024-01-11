@@ -3,7 +3,7 @@ const md5 = require('md5')
 
 const express = require('express')
 const app = express()
-const PORT = 3000
+const PORT = 3001
 app.listen(PORT, () => console.log(`My server is running on port ${PORT}`))
 const TelegramBot = require('node-telegram-bot-api')
 const { default: axios } = require('axios')
