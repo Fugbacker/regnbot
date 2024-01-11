@@ -547,9 +547,6 @@ bot.on('message', (msg) => {
         userName: currentUserState?.userName
       })
 
-
-      // const signatureValue = md5(`${merchantLogin}:${fulPrice}:${order}:jkhfg8d1983`)
-
       function renameRaports(objectData) {
         if (objectData ==='oh') {
           return ['Отчет об основных характеристиках']
