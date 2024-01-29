@@ -42,8 +42,8 @@ module.exports = {
 
         return res.join('\n')
       },
-      getApiUrl: (cn) => `https://rosegrn.su/api/request?req=right&cn=${cn}&version=2.0&format=json&api-key=${apiToken}`,
-      getScrapUrl: (cn) => `https://rosegrn.su/api/request?req=specification&cn=${cn}&version=2.0&format=json&api-key=${apiToken}`,
+      getApiUrl: (cn) => `https://regrn.su/api/request?req=right&cn=${cn}&version=2.0&format=json&api-key=${apiToken}`,
+      getScrapUrl: (cn) => `https://regrn.su/api/request?req=specification&cn=${cn}&version=2.0&format=json&api-key=${apiToken}`,
       getEgrpMessage: (data, dataMessage) => {
         function searchOwners() {
           if (data.response !== undefined) {
