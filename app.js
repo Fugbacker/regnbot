@@ -579,7 +579,7 @@ bot.on('message', (msg) => {
           capture: true,
           confirmation: {
             type: 'redirect',
-            return_url:`https://goskadastr.su/result/${order}`
+            return_url:`https://goscadastr.su/result/${order}`
           },
           description: order
         }
@@ -600,7 +600,7 @@ bot.on('message', (msg) => {
 
           axios({
             method: 'POST',
-            url: 'https://goskadastr.su/api/addOrder',
+            url: 'https://goscadastr.su/api/addOrder',
             data: fullOrder
           })
           const yookassPaymentUrl = data?.confirmation?.confirmation_url
@@ -761,7 +761,7 @@ bot.on('callback_query', query => {
               capture: true,
               confirmation: {
                 type: 'redirect',
-                return_url:`https://goskadastr.su/result/${order}`
+                return_url:`https://goscadastr.su/result/${order}`
               },
               description: order
             }
@@ -782,7 +782,7 @@ bot.on('callback_query', query => {
 
               axios({
                 method: 'POST',
-                url: 'https://goskadastr.su/api/addOrder',
+                url: 'https://goscadastr.su/api/addOrder',
                 data: fullOrder
               })
               const yookassPaymentUrl = data?.confirmation?.confirmation_url

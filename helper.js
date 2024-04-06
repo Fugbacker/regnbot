@@ -77,7 +77,7 @@ module.exports = {
         return result.join('\n')
       },
       dadataTokenChanger: async function dadataTokenChanger () {
-       const {data} = await axios('https://goskadastr.su/api/token')
+       const {data} = await axios('https://goscadastr.su/api/token')
        console.log("TOKEN", data)
        return data
       }
