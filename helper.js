@@ -42,8 +42,8 @@ module.exports = {
 
         return res.join('\n')
       },
-      getApiUrl: (cn) => `https://regrn.su/api/request?req=right&cn=${cn}&version=2.0&format=json&api-key=${apiToken}`,
-      getScrapUrl: (cn) => `https://regrn.su/api/request?req=specification&cn=${cn}&version=2.0&format=json&api-key=${apiToken}`,
+      getApiUrl: (cn) => `https://regrn.store/api/request?req=right&cn=${cn}&version=2.0&format=json&api-key=${apiToken}`,
+      getScrapUrl: (cn) => `https://regrn.store/api/request?req=specification&cn=${cn}&version=2.0&format=json&api-key=${apiToken}`,
       getEgrpMessage: (data, dataMessage) => {
         function searchOwners() {
           if (data.response !== undefined) {
@@ -77,7 +77,7 @@ module.exports = {
         return result.join('\n')
       },
       dadataTokenChanger: async function dadataTokenChanger () {
-       const {data} = await axios('https://goscadastr.su/api/token')
+       const {data} = await axios('https://gockadastr.su/api/token')
        console.log("TOKEN", data)
        return data
       }
