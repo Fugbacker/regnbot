@@ -761,7 +761,7 @@ bot.on('callback_query', query => {
               capture: true,
               confirmation: {
                 type: 'redirect',
-                return_url:`https://gockadastr.su/result/${order}`
+                return_url:`https://doc.gockadastr.su/result/${order}`
               },
               description: order
             }
