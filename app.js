@@ -239,6 +239,7 @@ bot.on('message', (msg) => {
           })
 
         const html = askReestrAboutObject.data
+        console.log('HTML', html)
 
         if (html.length === 0) {
           bot.sendMessage(chatId, templates.cantFindObject, {
@@ -315,6 +316,7 @@ bot.on('message', (msg) => {
             async function tryFindFlatList(regionId) {
               // const ReestrUrl = `https://rosreestr.gov.ru/fir_rest/api/fir/address/fir_objects?macroRegionId=${regionId}&street=${street}&house=${houseNumber}&building=${block}`
               let ReestrUrl = `https://rosreestr.gov.ru/fir_lite_rest/api/gkn/address/fir_objects?macroRegionId=${regionId}&street=${street}&house=${house}$&building=${block}&apartment=${flat}}`
+
               if (!block && !flat) {
                 ReestrUrl = `https://rosreestr.gov.ru/fir_lite_rest/api/gkn/address/fir_objects?macroRegionId=${regionId}&street=${street}&house=${house}}`
               }
