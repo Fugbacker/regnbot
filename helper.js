@@ -24,7 +24,7 @@ module.exports = {
         let res = [
           `<b>Кадастровый номер</b>: ${kadnum}`,
           `<b>Адрес объекта:</b> ${adress}`,
-          `<b>Тип объекта:</b> ${objectName}`,
+          `<b>Тип объекта:</b> ${objectName}` || 'Объект',
           `<b>${objectData?.response?.areaType}:</b> ${areaType}`,
           `<b>Кадастровая стоимость:</b> ${cadCost}`
         ]

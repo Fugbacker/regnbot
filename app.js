@@ -171,20 +171,28 @@ bot.on('message', (msg) => {
               })
             } else {
               const dataMessage = answerInformationEgrn(data)
-              axios.get(egrp).then(({ data }) => {
-                userStates = {
-                  ...userStates, [msg.from.id]: {
-                    ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
-                    address: msg.text, egrp: getEgrpMessage(data, dataMessage)
-                  }
+              // axios.get(egrp).then(({ data }) => {
+              //   userStates = {
+              //     ...userStates, [msg.from.id]: {
+              //       ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+              //       address: msg.text, egrp: getEgrpMessage(data, dataMessage)
+              //     }
+              //   }
+              //   bot.sendMessage(chatId, userStates[msg.from.id].egrp, keyboard.cb)
+              // })
+              userStates = {
+                ...userStates, [msg.from.id]: {
+                  ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+                  address: msg.text, egrp: dataMessage
                 }
-                bot.sendMessage(chatId, userStates[msg.from.id].egrp, keyboard.cb)
-              })
+              }
+              bot.sendMessage(chatId, userStates[msg.from.id].egrp, keyboard.cb)
             }
           })
         }
         return;
     }
+
   // поиск по адресу
     if (currentUserState?.currentStep === USER_STATES.ENTER_ADDRESS) {
       const dadataUrl = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address'
@@ -200,8 +208,19 @@ bot.on('message', (msg) => {
         data: {query: msg.text, 'count':10}
       })
 
-      const dadataResponse = getAskDadata?.data?.suggestions[0]?.value
+      // const dadataResponse = getAskDadata?.data?.suggestions[0]?.value
+
       const dadataResponseFull = getAskDadata?.data?.suggestions[0]?.data
+      const region = dadataResponseFull?.region_with_type
+      const city = dadataResponseFull?.city || null
+      const settlement = dadataResponseFull?.settlement || null
+      const street = dadataResponseFull?.street || null
+      const house = dadataResponseFull?.house || null
+      const flat = dadataResponseFull?.flat || null
+      console.log('dadataResponseFull', dadataResponseFull)
+      let fullAddress = `${region}|${city}|${settlement}|${street}|${house}|${flat}`
+      const arrayOfAddresses = fullAddress.split("|").filter(it => it !== 'null')
+      const address = arrayOfAddresses.join(' ')
 
       if (getAskDadata?.data?.suggestions?.length === 0) {
 
@@ -225,9 +244,9 @@ bot.on('message', (msg) => {
 
       try {
         bot.sendMessage(chatId, templates.justSearch)
-        const url = `https://lk.rosreestr.ru/account-back/address/search?term=${dadataResponse}`
+        const url = `https://lk.rosreestr.ru/account-back/address/search?term=${address}`
         const encodedUrl = encodeURI(url)
-
+        console.log('encodedUrl', encodedUrl)
         const askReestrAboutObject = await axios({
           rejectUnauthorized: false,
           headers: {
@@ -267,14 +286,21 @@ bot.on('message', (msg) => {
           axios.get(api).then(({ data }) => {
             userStates = { ...userStates, [msg.from.id]: { ...userStates[msg.from.id], currentStep: USER_STATES.READY_TO_PAY, cadastrNumber: data.response.objectCn } }
             const dataMessage = answerInformationEgrn(data)
-            axios.get(egrp).then(({ data }) => {
-              userStates = {
-                ...userStates, [msg.from.id]: {
-                  ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
-                }
+            // axios.get(egrp).then(({ data }) => {
+            //   userStates = {
+            //     ...userStates, [msg.from.id]: {
+            //       ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+            //     }
+            //   }
+            //   bot.sendMessage(chatId, getEgrpMessage(data, dataMessage), keyboard.cb)
+            // })
+            userStates = {
+              ...userStates, [msg.from.id]: {
+                ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+                address: msg.text, egrp: dataMessage
               }
-              bot.sendMessage(chatId, getEgrpMessage(data, dataMessage), keyboard.cb)
-            })
+            }
+            bot.sendMessage(chatId, userStates[msg.from.id].egrp, keyboard.cb)
           })
           return;
         }
@@ -353,14 +379,21 @@ bot.on('message', (msg) => {
                   axios.get(api).then(({ data }) => {
                     userStates = { ...userStates, [msg.from.id]: { ...userStates[msg.from.id], currentStep: USER_STATES.READY_TO_PAY, cadastrNumber: data.response.objectCn } }
                     const dataMessage = answerInformationEgrn(data)
-                    axios.get(egrp).then(({ data }) => {
-                      userStates = {
-                        ...userStates, [msg.from.id]: {
-                          ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
-                        }
+                    // axios.get(egrp).then(({ data }) => {
+                    //   userStates = {
+                    //     ...userStates, [msg.from.id]: {
+                    //       ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+                    //     }
+                    //   }
+                    //   bot.sendMessage(chatId, getEgrpMessage(data, dataMessage), keyboard.cb)
+                    // })
+                    userStates = {
+                      ...userStates, [msg.from.id]: {
+                        ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+                        address: msg.text, egrp: dataMessage
                       }
-                      bot.sendMessage(chatId, getEgrpMessage(data, dataMessage), keyboard.cb)
-                    })
+                    }
+                    bot.sendMessage(chatId, userStates[msg.from.id].egrp, keyboard.cb)
                   })
                   return;
                 }
@@ -453,14 +486,21 @@ bot.on('message', (msg) => {
                 axios.get(api).then(({ data }) => {
                   userStates = { ...userStates, [msg.from.id]: { ...userStates[msg.from.id], currentStep: USER_STATES.READY_TO_PAY, cadastrNumber: data.response.objectCn } }
                   const dataMessage = answerInformationEgrn(data)
-                  axios.get(egrp).then(({ data }) => {
-                    userStates = {
-                      ...userStates, [msg.from.id]: {
-                        ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
-                      }
+                  // axios.get(egrp).then(({ data }) => {
+                  //   userStates = {
+                  //     ...userStates, [msg.from.id]: {
+                  //       ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+                  //     }
+                  //   }
+                  //   bot.sendMessage(chatId, getEgrpMessage(data, dataMessage), keyboard.cb)
+                  // })
+                  userStates = {
+                    ...userStates, [msg.from.id]: {
+                      ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+                      address: msg.text, egrp: dataMessage
                     }
-                    bot.sendMessage(chatId, getEgrpMessage(data, dataMessage), keyboard.cb)
-                  })
+                  }
+                  bot.sendMessage(chatId, userStates[msg.from.id].egrp, keyboard.cb)
                 })
                 return;
               }
