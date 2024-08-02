@@ -608,9 +608,9 @@ bot.on('message', (msg) => {
           'Idempotence-key': Date.now()
         },
         auth: {
-          username: '299846', //'501627',
+          username: '376619', //'501627',
           // username: '501627', //'test',
-          password: 'live_Z4ZXNaLboAJcTwfH8-zNi6L4Zkgdteh7uJE57fxZYm0' //'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
+          password: 'live_KsizuC8dAIjTEIBrpi9_lrbkwQkJOAr02aelINb4qqs' //'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
           // password: 'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
         },
         data: {
@@ -621,7 +621,7 @@ bot.on('message', (msg) => {
           capture: true,
           confirmation: {
             type: 'redirect',
-            return_url:`https://gockadastr.su/result/${order}`
+            return_url:`https://doc.gockadastr.su/result/${order}`
           },
           description: order
         }
@@ -642,7 +642,7 @@ bot.on('message', (msg) => {
 
           axios({
             method: 'POST',
-            url: 'https://gockadastr.su/api/addOrder',
+            url: 'https://doc.gockadastr.su/api/addOrder',
             data: fullOrder
           })
           const yookassPaymentUrl = data?.confirmation?.confirmation_url
@@ -790,11 +790,12 @@ bot.on('callback_query', query => {
               'Idempotence-key': Date.now()
             },
             auth: {
-              username: '366657', //'501627',
+              username: '376619', //'501627',
               // username: '501627', //'test',
-              password: 'live_nXQm58pfcwBBFcg-ct6vvSUISQojN5Uyd69U8dtFP10' //'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
+              password: 'live_KsizuC8dAIjTEIBrpi9_lrbkwQkJOAr02aelINb4qqs' //'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
               // password: 'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
             },
+
             data: {
               amount: {
                 value: fulPrice,
@@ -824,7 +825,7 @@ bot.on('callback_query', query => {
 
               axios({
                 method: 'POST',
-                url: 'https://gockadastr.su/api/addOrder',
+                url: 'https://doc.gockadastr.su/api/addOrder',
                 data: fullOrder
               })
               const yookassPaymentUrl = data?.confirmation?.confirmation_url
