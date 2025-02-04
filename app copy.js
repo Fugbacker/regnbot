@@ -243,7 +243,7 @@ bot.on('message', (msg) => {
         return
       }
 
-      // try {
+      try {
         bot.sendMessage(chatId, templates.justSearch)
         const url = `https://lk.rosreestr.ru/account-back/address/search?term=${address}`
         const encodedUrl = encodeURI(url)
@@ -283,11 +283,11 @@ bot.on('message', (msg) => {
         if (html.length === 1) {
           console.log('CADNUMBER', html[0].cadnum)
           bot.sendMessage(chatId, templates.findOneObject)
-          // const egrp = getApiUrl(html[0].cadnum)
+          const egrp = getApiUrl(html[0].cadnum)
           const api = getScrapUrl(html[0].cadnum)
           axios.get(api).then(({ data }) => {
             console.log('data', data)
-            userStates = { ...userStates, [msg.from.id]: { ...userStates[msg.from.id], currentStep: USER_STATES.READY_TO_PAY, cadastrNumber: data?.features[0]?.properties?.options?.cad_number || data?.features[0]?.properties?.options?.cad_num || data?.features[1]?.properties?.options?.cad_number || data?.features[1]?.properties?.options?.cad_num } }
+            userStates = { ...userStates, [msg.from.id]: { ...userStates[msg.from.id], currentStep: USER_STATES.READY_TO_PAY, cadastrNumber: data.response.objectCn } }
             const dataMessage = answerInformationEgrn(data)
             // axios.get(egrp).then(({ data }) => {
             //   userStates = {
@@ -330,25 +330,229 @@ bot.on('message', (msg) => {
             })
           })
         }
-      // } catch {
-      //   bot.sendMessage(chatId, templates.cantFindObject, {
-      //     parse_mode: 'HTML',
-      //     reply_markup: {
-      //       inline_keyboard:
-      //         [
-      //           [{
-      //             text: templates.addressSearch,
-      //             callback_data: `addressSearch`
-      //           }],
-      //           [{
-      //             text: templates.cadastralSearch,
-      //             callback_data: `cadastrSearch`
-      //           }]
-      //         ]
-      //     }
-      //   })
-      //   return
-      // }
+      } catch {
+        try {
+          const kladrObjectCode = dadataResponseFull?.settlement_kladr_id || dadataResponseFull?.city_kladr_id
+          const kladrCode = parseInt(kladrObjectCode)
+          const region = dadataResponseFull?.region_with_type
+          const settlementName = dadataResponseFull?.settlement || null
+          const city = dadataResponseFull?.city || null
+          const street = dadataResponseFull?.street || null
+          const house = dadataResponseFull?.house || null
+          const block = dadataResponseFull?.block || null
+          const flat = dadataResponseFull?.flat || null
+
+            async function tryFindFlatList(regionId) {
+              // const ReestrUrl = `https://rosreestr.gov.ru/fir_rest/api/fir/address/fir_objects?macroRegionId=${regionId}&street=${street}&house=${houseNumber}&building=${block}`
+              let ReestrUrl = `https://rosreestr.gov.ru/fir_lite_rest/api/gkn/address/fir_objects?macroRegionId=${regionId}&street=${street}&house=${house}$&building=${block}&apartment=${flat}}`
+
+              if (!block && !flat) {
+                ReestrUrl = `https://rosreestr.gov.ru/fir_lite_rest/api/gkn/address/fir_objects?macroRegionId=${regionId}&street=${street}&house=${house}}`
+              }
+              const flatList = await axios({
+                rejectUnauthorized: false,
+                method: 'GET',
+                timeout: 1000 * 15,
+                url: encodeURI(ReestrUrl),
+              })
+              if (Array.isArray(flatList.data)) {
+                if (flatList.data.length === 0) {
+                  bot.sendMessage(chatId, templates.cantFindObject, {
+                    reply_markup: {
+                      inline_keyboard:
+                        [
+                          [{
+                            text: templates.addressSearch,
+                            callback_data: `addressSearch`
+                          }],
+                          [{
+                            text: templates.cadastralSearch,
+                            callback_data: `cadastrSearch`
+                          }]
+                        ]
+                    }
+                  })
+                }
+
+                //если найден один объект
+                if (flatList.data.length === 1) {
+                  bot.sendMessage(chatId, templates.findOneObject)
+                  const egrp = getApiUrl(flatList.data[0].objectCn)
+                  const api = getScrapUrl(flatList.data[0].objectCn)
+                  axios.get(api).then(({ data }) => {
+                    userStates = { ...userStates, [msg.from.id]: { ...userStates[msg.from.id], currentStep: USER_STATES.READY_TO_PAY, cadastrNumber: data.response.objectCn } }
+                    const dataMessage = answerInformationEgrn(data)
+                    // axios.get(egrp).then(({ data }) => {
+                    //   userStates = {
+                    //     ...userStates, [msg.from.id]: {
+                    //       ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+                    //     }
+                    //   }
+                    //   bot.sendMessage(chatId, getEgrpMessage(data, dataMessage), keyboard.cb)
+                    // })
+                    userStates = {
+                      ...userStates, [msg.from.id]: {
+                        ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+                        address: msg.text, egrp: dataMessage
+                      }
+                    }
+                    bot.sendMessage(chatId, userStates[msg.from.id].egrp, keyboard.cb)
+                  })
+                  return;
+                }
+
+              // если найдено несколько объектов
+                if (flatList.data.length > 1) {
+                  bot.sendMessage(chatId, templates.findSomeObjects)
+                  const objectList = flatList.data.slice(0,10)
+                  objectList.map((it) => {
+                    bot.sendMessage(chatId, answerInformationEgrn1(it), {
+                      parse_mode: 'HTML',
+                      reply_markup: {
+                        inline_keyboard: [
+                          [{
+                            text: 'Подробнее',
+                            callback_data: 'kadnum'
+                          }],
+                          [{
+                            text: `🔍 ${templates.backSearch}`,
+                            callback_data: `startSearchAgain`
+                          }]
+                        ]
+                      }
+                    })
+                  })
+                }
+                return
+              }
+              return []
+            }
+              //Если регион - Москва
+            if (kladrCode === 7700000000000) {
+              const region = 145000000000
+              tryFindFlatList(region)
+            }
+            //Если регион - Питер
+            if (kladrCode === 7800000000000) {
+              const region = 140000000000
+              tryFindFlatList(region)
+            }
+            // Любой другой регион
+            await client.connect()
+            const db = client.db(process.env.MONGO_COLLECTION)
+            const collection = db.collection('Reestr_geo')
+            let settlement = await collection.findOne({ $and:[{settlement_code: kladrCode}, {settlement_name: settlementName || city}]})
+            if (!settlement) {
+              const settlement1 = await collection.findOne({ $and:[{settlement_code: kladrCode}, {settlement_name: settlementName?.toUpperCase() || city?.toUpperCase()}]})
+              settlement = settlement1
+            }
+
+            const macroRegionId = settlement?.macroRegionId
+            const regionId = settlement?.regionId
+            // const askReestrUrl = `https://rosreestr.gov.ru/fir_rest/api/fir/address/fir_objects?macroRegionId=${macroRegionId}&regionId=${regionId}&street=${street}&house=${houseNumber}&building=${block}`
+            let askReestrUrl = `https://rosreestr.gov.ru/fir_lite_rest/api/gkn/address/fir_objects?macroRegionId=${macroRegionId}&regionId=${regionId}&street=${street}&house=${house}&building=${block}&apartment=${flat}`
+            if (!block && !flat) {
+              askReestrUrl = `https://rosreestr.gov.ru/fir_lite_rest/api/gkn/address/fir_objects?macroRegionId=${macroRegionId}&regionId=${regionId}&street=${street}&house=${house}`
+            }
+
+            const flatList = await axios({
+              rejectUnauthorized: false,
+              method: 'GET',
+              timeout: 1000 * 15,
+              url: encodeURI(askReestrUrl),
+            })
+
+            if (Array.isArray(flatList.data)) {
+              if (flatList.data.length === 0) {
+                bot.sendMessage(chatId, templates.cantFindObject, {
+                  reply_markup: {
+                    inline_keyboard:
+                      [
+                        [{
+                          text: templates.addressSearch,
+                          callback_data: `addressSearch`
+                        }],
+                        [{
+                          text: templates.cadastralSearch,
+                          callback_data: `cadastrSearch`
+                        }]
+                      ]
+                  }
+                })
+              }
+
+              //если найден один объект
+              if (flatList.data.length === 1) {
+                bot.sendMessage(chatId, templates.findOneObject)
+                const egrp = getApiUrl(flatList.data[0].objectCn)
+                const api = getScrapUrl(flatList.data[0].objectCn)
+                axios.get(api).then(({ data }) => {
+                  userStates = { ...userStates, [msg.from.id]: { ...userStates[msg.from.id], currentStep: USER_STATES.READY_TO_PAY, cadastrNumber: data.response.objectCn } }
+                  const dataMessage = answerInformationEgrn(data)
+                  // axios.get(egrp).then(({ data }) => {
+                  //   userStates = {
+                  //     ...userStates, [msg.from.id]: {
+                  //       ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+                  //     }
+                  //   }
+                  //   bot.sendMessage(chatId, getEgrpMessage(data, dataMessage), keyboard.cb)
+                  // })
+                  userStates = {
+                    ...userStates, [msg.from.id]: {
+                      ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
+                      address: msg.text, egrp: dataMessage
+                    }
+                  }
+                  bot.sendMessage(chatId, userStates[msg.from.id].egrp, keyboard.cb)
+                })
+                return;
+              }
+
+            // если найдено несколько объектов
+              if (flatList.data.length > 1) {
+                bot.sendMessage(chatId, templates.findSomeObjects)
+                const objectList = flatList.data.slice(0,10)
+                objectList.map((it) => {
+                  bot.sendMessage(chatId, answerInformationEgrn1(it), {
+                    parse_mode: 'HTML',
+                    reply_markup: {
+                      inline_keyboard: [
+                        [{
+                          text: 'Подробнее',
+                          callback_data: 'kadnum'
+                        }],
+                        [{
+                          text: `🔍 ${templates.backSearch}`,
+                          callback_data: `startSearchAgain`
+                        }]
+                      ]
+                    }
+                  })
+                })
+              }
+              return
+            }
+        } catch (error) {
+          bot.sendMessage(chatId, templates.cantFindObject, {
+            parse_mode: 'HTML',
+            reply_markup: {
+              inline_keyboard:
+                [
+                  [{
+                    text: templates.addressSearch,
+                    callback_data: `addressSearch`
+                  }],
+                  [{
+                    text: templates.cadastralSearch,
+                    callback_data: `cadastrSearch`
+                  }]
+                ]
+            }
+          })
+          return;
+        }
+        return
+      }
     }
 
     if (currentUserState?.currentStep === USER_STATES.CHOOSE_DOCUMENT) {
