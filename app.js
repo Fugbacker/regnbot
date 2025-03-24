@@ -528,6 +528,8 @@ bot.on('callback_query', query => {
       let number = query.message.text.split(' ')[2].split('\n')[0]
       userStates = { ...userStates, [query.from.id]: { ...userStates[query.from.id], currentStep: USER_STATES.ENTER_CADASTR_NUMBER, cadastrNumber: number } }
       const api = getScrapUrl(number)
+      console.log('number', number)
+      console.log('api', api)
       axios.get(api).then(({ data }) => {
         bot.sendMessage(query.message.chat.id, answerInformationEgrn(data), keyboard.cb)
       })
