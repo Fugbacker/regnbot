@@ -243,7 +243,7 @@ bot.on('message', (msg) => {
         return
       }
 
-      // try {
+      try {
         bot.sendMessage(chatId, templates.justSearch)
         const url = `https://lk.rosreestr.ru/account-back/address/search?term=${address}`
         const encodedUrl = encodeURI(url)
@@ -286,17 +286,8 @@ bot.on('message', (msg) => {
           // const egrp = getApiUrl(html[0].cadnum)
           const api = getScrapUrl(html[0].cadnum)
           axios.get(api).then(({ data }) => {
-            console.log('data', data)
-            userStates = { ...userStates, [msg.from.id]: { ...userStates[msg.from.id], currentStep: USER_STATES.READY_TO_PAY, cadastrNumber: data?.features[0]?.properties?.options?.cad_number || data?.features[0]?.properties?.options?.cad_num || data?.features[1]?.properties?.options?.cad_number || data?.features[1]?.properties?.options?.cad_num } }
+            userStates = { ...userStates, [msg.from.id]: { ...userStates[msg.from.id], currentStep: USER_STATES.READY_TO_PAY, cadastrNumber: data?.data?.features[0]?.properties?.options?.cad_number || data?.data?.features[0]?.properties?.options?.cad_num || data?.data?.features[1]?.properties?.options?.cad_number || data?.data?.features[1]?.properties?.options?.cad_num } }
             const dataMessage = answerInformationEgrn(data)
-            // axios.get(egrp).then(({ data }) => {
-            //   userStates = {
-            //     ...userStates, [msg.from.id]: {
-            //       ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
-            //     }
-            //   }
-            //   bot.sendMessage(chatId, getEgrpMessage(data, dataMessage), keyboard.cb)
-            // })
             userStates = {
               ...userStates, [msg.from.id]: {
                 ...userStates[msg.from.id], currentStep: USER_STATES.RECIVED_EGRP,
@@ -312,6 +303,7 @@ bot.on('message', (msg) => {
         if (html.length > 1) {
           bot.sendMessage(chatId, templates.findSomeObjects)
           const objectList = html.slice(0,10)
+          console.log('OBJECTLIST', objectList)
           objectList.map((it) => {
             bot.sendMessage(chatId, answerInformationEgrn1(it), {
               parse_mode: 'HTML',
@@ -330,25 +322,25 @@ bot.on('message', (msg) => {
             })
           })
         }
-      // } catch {
-      //   bot.sendMessage(chatId, templates.cantFindObject, {
-      //     parse_mode: 'HTML',
-      //     reply_markup: {
-      //       inline_keyboard:
-      //         [
-      //           [{
-      //             text: templates.addressSearch,
-      //             callback_data: `addressSearch`
-      //           }],
-      //           [{
-      //             text: templates.cadastralSearch,
-      //             callback_data: `cadastrSearch`
-      //           }]
-      //         ]
-      //     }
-      //   })
-      //   return
-      // }
+      } catch {
+        bot.sendMessage(chatId, templates.cantFindObject, {
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard:
+              [
+                [{
+                  text: templates.addressSearch,
+                  callback_data: `addressSearch`
+                }],
+                [{
+                  text: templates.cadastralSearch,
+                  callback_data: `cadastrSearch`
+                }]
+              ]
+          }
+        })
+        return
+      }
     }
 
     if (currentUserState?.currentStep === USER_STATES.CHOOSE_DOCUMENT) {
@@ -394,7 +386,7 @@ bot.on('message', (msg) => {
         } else if (objectData === 'ks') {
           return ['Справка о кадастровой стоимости']
         } else if (objectData === 'ss') {
-          return ['Сведения о собственниках']
+          return ['Расширенный отчет']
         }
       }
       // const url = await orderGeneration(order, renameRaports(document), email, cadastrNumber, fulPrice, data)
@@ -407,9 +399,9 @@ bot.on('message', (msg) => {
           'Idempotence-key': Date.now()
         },
         auth: {
-          username: '411269', //'501627',
+          username: '1124414', //'501627',
           // username: '501627', //'test',
-          password: 'live_iWNFBoR460kNVueaehfMWoRL-ah_xgM84A63se2ucIE' //'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
+          password: 'live_jAqM81GhRuAu9mvu3zLaef26dHEy1y5qSmvNBNHUl3Y' //'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
           // password: 'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
         },
         data: {
@@ -420,7 +412,7 @@ bot.on('message', (msg) => {
           capture: true,
           confirmation: {
             type: 'redirect',
-            return_url:`https://doc.gockadastr.su/result/${order}`
+            return_url:`https://doc.gockadastr.site/result/${order}`
           },
           description: order
         }
@@ -441,7 +433,7 @@ bot.on('message', (msg) => {
 
           axios({
             method: 'POST',
-            url: 'https://doc.gockadastr.su/api/addOrder',
+            url: 'https://doc.gockadastr.site/api/addOrder',
             data: fullOrder
           })
           const yookassPaymentUrl = data?.confirmation?.confirmation_url
@@ -591,9 +583,9 @@ bot.on('callback_query', query => {
               'Idempotence-key': Date.now()
             },
             auth: {
-              username: '411269', //'501627',
+              username: '1124414', //'501627',
               // username: '501627', //'test',
-              password: 'live_iWNFBoR460kNVueaehfMWoRL-ah_xgM84A63se2ucIE' //'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
+              password: 'live_jAqM81GhRuAu9mvu3zLaef26dHEy1y5qSmvNBNHUl3Y' //'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
               // password: 'test_REd92lfdF3-xDVl_6B1C42sxUew5KiFiiQs7f0-qMz8'
             },
 
@@ -605,7 +597,7 @@ bot.on('callback_query', query => {
               capture: true,
               confirmation: {
                 type: 'redirect',
-                return_url:`https://doc.gockadastr.su/result/${order}`
+                return_url:`https://doc.gockadastr.site/result/${order}`
               },
               description: order
             }
@@ -626,7 +618,7 @@ bot.on('callback_query', query => {
 
               axios({
                 method: 'POST',
-                url: 'https://doc.gockadastr.su/api/addOrder',
+                url: 'https://doc.gockadastr.site/api/addOrder',
                 data: fullOrder
               })
               const yookassPaymentUrl = data?.confirmation?.confirmation_url

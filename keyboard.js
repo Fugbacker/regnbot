@@ -19,12 +19,12 @@ module.exports = {
       }],
       [{
         text: `${templates.cadastralReport} ${templates.cadastralReportPrice}р`,
-        callback_data: `ks, 500`
+        callback_data: `ks, 550`
       }],
-      // [{
-      //   text: `${templates.fullCheckReport} ${templates.fullCheckReportPrice}р`,
-      //   callback_data: `ss, 6000`
-      // }],
+      [{
+        text: `${templates.fullCheckReport} ${templates.fullCheckReportPrice}р`,
+        callback_data: `ss, 7500`
+      }],
       [{
         text: `🔍 ${templates.backSearch}`,
         callback_data: `startSearchAgain`
