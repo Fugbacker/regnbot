@@ -412,7 +412,7 @@ bot.on('message', (msg) => {
           capture: true,
           confirmation: {
             type: 'redirect',
-            return_url:`https://doc.gockadastr.site/result/${order}`
+            return_url:`https://doc.gcadastr.su/result/${order}`
           },
           description: order
         }
@@ -433,7 +433,7 @@ bot.on('message', (msg) => {
 
           axios({
             method: 'POST',
-            url: 'https://doc.gockadastr.site/api/addOrder',
+            url: 'https://doc.gcadastr.su/api/addOrder',
             data: fullOrder
           })
           const yookassPaymentUrl = data?.confirmation?.confirmation_url
@@ -597,7 +597,7 @@ bot.on('callback_query', query => {
               capture: true,
               confirmation: {
                 type: 'redirect',
-                return_url:`https://doc.gockadastr.site/result/${order}`
+                return_url:`https://doc.gcadastr.su/result/${order}`
               },
               description: order
             }
@@ -618,7 +618,7 @@ bot.on('callback_query', query => {
 
               axios({
                 method: 'POST',
-                url: 'https://doc.gockadastr.site/api/addOrder',
+                url: 'https://doc.gcadastr.su/api/addOrder',
                 data: fullOrder
               })
               const yookassPaymentUrl = data?.confirmation?.confirmation_url
