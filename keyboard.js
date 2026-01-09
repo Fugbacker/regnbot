@@ -7,19 +7,19 @@ module.exports = {
     [
       [{
         text: `${templates.expressReport} ${templates.expressReportPrice}р`,
-        callback_data: `ex, 500`
+        callback_data: `ex, 600`
       }],
       [{
         text: `${templates.specificationsRepot} ${templates.specificationsRepotPrice}р`,
-        callback_data: `oh, 750`
+        callback_data: `oh, 950`
       }],
       [{
         text: `${templates.rightsReport} ${templates.rightsReportPrice}р`,
-        callback_data: `op, 800`
+        callback_data: `op, 980`
       }],
       [{
         text: `${templates.cadastralReport} ${templates.cadastralReportPrice}р`,
-        callback_data: `ks, 550`
+        callback_data: `ks, 650`
       }],
       [{
         text: `${templates.fullCheckReport} ${templates.fullCheckReportPrice}р`,
