@@ -44,7 +44,7 @@ module.exports = {
 
         return res.join('\n')
       },
-     getScrapUrl: (cn) => `https://doc.gcadastr.su/api/nspdCadNumData?cadNumber=${cn}`,
+     getScrapUrl: (cn) => `https://doc.gcad.su/api/nspdCadNumData?cadNumber=${cn}`,
 
       getEgrpMessage: (data, dataMessage) => {
         function searchOwners() {
@@ -79,7 +79,7 @@ module.exports = {
         return result.join('\n')
       },
       dadataTokenChanger: async function dadataTokenChanger () {
-       const {data} = await axios('https://doc.gcadastr.su/api/token')
+       const {data} = await axios('https://doc.gcad.su/api/token')
        return data
       }
 }
